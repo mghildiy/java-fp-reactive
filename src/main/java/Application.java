@@ -3,10 +3,8 @@ import model.Dish;
 import model.Menu;
 import model.Type;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -61,10 +59,57 @@ public class Application {
         dishNames = menu.dishes().stream()
                 .map(Dish::name)
                 .collect(toList());
+
+        // sort
+        Comparator<Dish>  calorieBasedSorter = (Dish d1, Dish d2) -> {
+            return d1.calories().calories() - d2.calories().calories();
+        };
+        System.out.println("Filter based approach");
+        System.out.println(menu.dishes().stream()
+                .sorted(calorieBasedSorter)
+                .filter(Application::lowCaloriesDish)
+                .collect(toList()));
+        System.out.println("Takewhile based approach");
+        System.out.println(menu.dishes().stream()
+                .sorted(calorieBasedSorter)
+                .takeWhile(Application::lowCaloriesDish)
+                .collect(toList()));
+        System.out.println("Dropwhile based approach");
+        System.out.println(menu.dishes().stream()
+                .sorted(calorieBasedSorter)
+                .dropWhile(Application::lowCaloriesDish)
+                .collect(toList()));
+        System.out.println("limit");
+        System.out.println(menu.dishes().stream()
+                .limit(3)
+                .collect(toList()));
+        System.out.println("skip");
+        System.out.println(menu.dishes().stream()
+                .skip(3)
+                .collect(toList()));
+        System.out.println("map");
+        System.out.println(menu.dishes().stream()
+                .map(dish -> dish.name())
+                .collect(toList()));
+        System.out.println("flatMap");
+        System.out.println(Arrays.asList("Hello", "World").stream()
+                .map(word -> word.split(""))
+                .flatMap(Arrays::stream)
+                .distinct()
+                .collect(Collectors.toList()));
+        System.out.println("reduce");
+        System.out.println(menu.dishes().stream()
+                .map(Dish::calories)
+                .map(Calories::calories)
+                .reduce(0, (cal1, cal2) -> cal1 + cal2));
     }
 
     static private boolean highCalorieDish(Dish dish) {
-        System.out.println("Filter operation:"+ dish.name());
         return dish.calories().calories() > 300;
+    }
+
+    static private boolean lowCaloriesDish(Dish dish) {
+        System.out.println("Predicate check for:"+ dish.name());
+        return dish.calories().calories() < 320;
     }
 }
