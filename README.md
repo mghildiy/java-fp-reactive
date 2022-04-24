@@ -1,4 +1,4 @@
-#Java lambdas, streams, functional programming and reactive programming
+# Java lambdas, streams, functional programming and reactive programming
 
 The Streams API in Java lets write code in:
 * _**Declarative**_—More concise and readable
@@ -23,7 +23,7 @@ Terminal operations produce a result from a stream pipeline. Result can be a Lis
 So a stream basically has a data-source to perform query on, a set of intermediate operations to configure a pipeline, 
 and finally a terminal operation which executes the pipeline and generates some result or perform some side effect returning void.
 
-###Stream API methods
+### Stream API methods
 * filter : take all elements which satisfy a predicate.
 * distinct : take unique elements.
 * takeWhile : take all elements before first element which doesn't satisfy predicate. Use instead of filter when we don't want to iterate entire stream, like in a sorted stream
@@ -34,11 +34,11 @@ and finally a terminal operation which executes the pipeline and generates some 
 * flatMap : apply a function which generates a stream from an input element, and then combine elements from those streams to generate a single stream
 * reduce
 
-###Parallel streams
+### Parallel streams
 We can convert a stream to a parallel stream by calling method 'parallel'. It just enables a flag. Similarly, a parallel stream
 can be made sequential by calling method 'sequential', and is also just sets a flag. So if we use these multiple times, then
 only last invocation matters.
-By default ForkJoinPool from fork/join framework is used and it introduces
+By default, ForkJoinPool from fork/join framework is used and it introduces
 number of threads same as number of processors. But we can change the size of this pool using the system property
 java.util .concurrent.ForkJoinPool.common.parallelism
 
@@ -54,8 +54,55 @@ worsen the performance. Also, there must be no shared mutable state, else result
 Points to take into account while using parallel streams:
 
 * Always try to measure the performance while making transition form sequential to parallel stream processing
-* Avoid operations which involve automatic boxing and unboxing. Prefer IntStream, DoubleStream,LongStream etc instead
+* Avoid operations which involve automatic boxing and unboxing. Prefer IntStream, DoubleStream,LongStream etc. instead
 * Some operations, like limit, findFirst,Iterate etc., depend on order of elements, and hence they are not fit for parallelization
 * Parallel streams are beneficial if either there are large number of elements OR total time taken to process each element through all the stages is large
-* It also matters how easily it is to decompose underlying data-structure. For eg, its easier to split ArrayList than a LinkedList
+* It also matters how easy it is to decompose underlying data-structure. For eg, it's much easier to split ArrayList than a LinkedList
 * Terminal operation also impacts the performance of parallel streams depending on how cheap or expensive is the merging terminal operation
+
+#### fork/join framework
+Parallel streams internally use Java 7's fork/join mechanism to split tasks and parallelize them.
+This framework is designed to recursively split a task into smaller subtasks and then assign them to worker threads from a thread pool called
+ForkJoinPool which is an implementation of ExecutorService interface.
+
+A task is defined by implementing RecursiveTask<R>(inherits from ForkJoinTask) where R is the result type of the computation of a task(or by implementing RecursiveAction
+when task returns no result). Task needs to implement compute method:
+
+`protected abstract R compute();`
+
+This method contains the logic for dividing the task further into subtasks as well as computing the result.
+We launch a task either by:
+* Passing a task to ForkJoinPool.invoke
+* Invoking _**fork**_ on a task to schedule it on ForkJoinPool
+
+Few things to take care of when using forkjoin framework:
+* ForkJoinPool.invoke must never be called from within a task itself, but from a client code
+* We invoke _**join**_ on a task to block the caller, so it is needed that we call it after computations of all the subtasks
+  has been started, else other subtasks would be made to wait for execution
+* It may seem natural to invoke fork on all the subtasks, but a better approach is to call compute on one of the subtask
+  as it means it would be executed on same thread and hence avoids overhead associated with allocating task to forkjoin pool
+* Debugging parallel computation using forkjoin framework is difficult
+* Like parallel streams, forkjoin framework doesn't always guarantee better performance than sequential,
+  and we should always benchmark our code, task must be decomposable into independent subtasks, 
+  and our subtasks must take longer than time required to fork a subtask to be considered candidate for parallelization,
+  sequential computation may have the advantage of optimizations from compiler
+
+#### Work stealing
+Its very important that work is uniformly distributed among threads in forkjoin pool. In real world scenarios, task splitting
+is not very straigthforward to achieve this.
+To ensure that all threads in forkjoin pool are equally busy, it uses a mechanism called _**work stealing**_.
+Every thread in forkjoin pool uses a doubly linked queue to store tasks. So if a thread runs out of its tasks, it randomly
+selects a thread and picks a task from its end. So a good practise is to have finegrained subtasks rather than few big tasks.
+
+#### Spliterator
+Parallel streams use forkjoin pool to execute tasks in parallel, and use Spliterator to split the stream into chunks.
+Spliterator is Java8 interface, and it stands for 'splitable iterator', and like iterators they are used to traverse the
+elements of a source, but they are also designed to do this in parallel. Java8 provides a default Spliterator implementation
+for all datastructures in Collections framework which can be accessed using default method spliterator().
+Spliterator offers following API:
+* tryAdvance: sequentially consumes elements  like normal iterator
+* trySplit: partitions off elements in current Spliterator to another Spliterator
+* estimateSize: returns an estimate of elements remaining to be consumed
+* characteristics: returns an int encoding of the set of Spliterator's characteristics which can be used to optimize and better control
+
+Parallel stream uses Spliterator's trySplit method to recursively split the stream till it returns null.

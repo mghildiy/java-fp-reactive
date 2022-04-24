@@ -12,21 +12,21 @@ public class Application {
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         sequentialProcessing();
-        System.out.println("Total time:"+ (System.currentTimeMillis() - startTime));
+        System.out.println("Total time seq:"+ (System.currentTimeMillis() - startTime));
         startTime = System.currentTimeMillis();
         parallelProcessing();
-        System.out.println("Total time:"+ (System.currentTimeMillis() - startTime));
+        System.out.println("Total time parallel:"+ (System.currentTimeMillis() - startTime));
     }
 
     @Benchmark
     public static void sequentialProcessing() {
-        LongStream.range(1, 1000000000L)
+        LongStream.rangeClosed(1, 100000000)
                 .reduce(0, (num1, num2) -> num1 + num2);
     }
 
     @Benchmark
     public static void parallelProcessing() {
-        LongStream.range(1, 1000000000L)
+        LongStream.rangeClosed(1, 100000000)
                 .parallel()
                 .reduce(0, (num1, num2) -> num1 + num2);
     }
