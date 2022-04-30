@@ -83,13 +83,13 @@ Few things to take care of when using forkjoin framework:
   as it means it would be executed on same thread and hence avoids overhead associated with allocating task to forkjoin pool
 * Debugging parallel computation using forkjoin framework is difficult
 * Like parallel streams, forkjoin framework doesn't always guarantee better performance than sequential,
-  and we should always benchmark our code, task must be decomposable into independent subtasks, 
-  and our subtasks must take longer than time required to fork a subtask to be considered candidate for parallelization,
+  and we should keep in mind to: always benchmark our code, task must be decomposable into independent subtasks, 
+  and our subtasks must take longer than time required to fork a subtask to be considered a candidate for parallelization,
   sequential computation may have the advantage of optimizations from compiler
 
 #### Work stealing
 Its very important that work is uniformly distributed among threads in forkjoin pool. In real world scenarios, task splitting
-is not very straigthforward to achieve this.
+is not very straightforward to achieve this.
 To ensure that all threads in forkjoin pool are equally busy, it uses a mechanism called _**work stealing**_.
 Every thread in forkjoin pool uses a doubly linked queue to store tasks. So if a thread runs out of its tasks, it randomly
 selects a thread and picks a task from its end. So a good practise is to have finegrained subtasks rather than few big tasks.
@@ -106,3 +106,7 @@ Spliterator offers following API:
 * characteristics: returns an int encoding of the set of Spliterator's characteristics which can be used to optimize and better control
 
 Parallel stream uses Spliterator's trySplit method to recursively split the stream till it returns null.
+
+#### Implementing Custom Spliterator
+
+`SpliteratorDemo.java`
