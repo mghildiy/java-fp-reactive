@@ -9,7 +9,6 @@ import java.util.stream.StreamSupport;
 public class SpliteratorDemo {
 
     public static void main(String[] args) {
-        // count word imperatively
         final String SENTENCE =
                 " Nel mezzo del cammin di nostra vita " +
                         "mi ritrovai in una selva oscura" +

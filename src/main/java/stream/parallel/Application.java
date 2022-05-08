@@ -1,6 +1,8 @@
 package stream.parallel;
 
 import org.openjdk.jmh.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
@@ -9,6 +11,8 @@ import java.util.stream.LongStream;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(jvm = "2", jvmArgs={"-Xms4G", "-Xmx4G"})
 public class Application {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class.getSimpleName());
+
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         sequentialProcessing();

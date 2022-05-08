@@ -110,3 +110,28 @@ Parallel stream uses Spliterator's trySplit method to recursively split the stre
 #### Implementing Custom Spliterator
 
 `SpliteratorDemo.java`
+
+#### Collection factories
+- Arrays.asList
+- List.of
+- Set.of
+- Map.of
+- Map.ofEntries
+
+#### removeIf, replaceAll
+Stream API methods generate new stream, while iterator based approach is error-prone if we want to modify existing collections.
+From Java 8, we can use following methods from List and Set interface:
+- removeIf
+- replaceAll
+
+#### Working with Map
+- forEach for iteration
+- sorting using Entry.comparingByValue, Entry.comparingByKey
+- getOrDefault to overcome null reference issues
+- computeIfAbsent, computeIfPresent, compute
+
+#### Design patterns using lambdas
+- Use lambdas to define strategies instead of defining explicit classes in strategy pattern implementation @`StrategyDesignPattern`
+- Use lambdas to plugin the steps in algorithm defined by template @`TemplateDesignPattern`
+- Use lambdas to define observers in observer pattern
+- 924
