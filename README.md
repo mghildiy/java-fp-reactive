@@ -133,5 +133,7 @@ From Java 8, we can use following methods from List and Set interface:
 #### Design patterns using lambdas
 - Use lambdas to define strategies instead of defining explicit classes in strategy pattern implementation @`StrategyDesignPattern`
 - Use lambdas to plugin the steps in algorithm defined by template @`TemplateDesignPattern`
-- Use lambdas to define observers in observer pattern
-- 924
+- Use lambdas to define simple observers in observer pattern
+- Use lambdas to define processing objects in chain of responsibility pattern and combine them using andThen
+
+..357

@@ -1,4 +1,4 @@
-package jdk8.bestpractices;
+package jdk8.bestpractices.patterns;
 
 import java.util.function.Consumer;
 
